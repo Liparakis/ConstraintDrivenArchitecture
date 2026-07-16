@@ -1,0 +1,1 @@
+Use the installed constraint-driven-architecture skill in REVIEW mode. Inspect every supplied source and build file. Produce a ranked, evidence-backed review with remediation order, risks, and fitness functions; do not prescribe a rewrite without evidence.

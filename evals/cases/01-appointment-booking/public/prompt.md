@@ -1,0 +1,1 @@
+Use the installed constraint-driven-architecture skill to produce an evidence-grounded architecture for the supplied brief. State the selected mode, simplest sufficient baseline, invariants, trust boundaries, failure behavior, alternatives rejected, implementation order, and practical fitness functions. Keep assumptions and unknowns explicit.

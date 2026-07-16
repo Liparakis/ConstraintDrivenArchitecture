@@ -1,0 +1,1 @@
+Use the installed constraint-driven-architecture skill to design a local-first architecture. Cover device-local state, synchronization contracts, identity, authority, conflicts, partitions, convergence, failure/retry semantics, alternatives, and measurements.

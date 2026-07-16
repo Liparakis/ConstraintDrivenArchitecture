@@ -1,0 +1,1 @@
+Use the installed constraint-driven-architecture skill to design the smallest defensible offline desktop architecture for the supplied brief. Cover source-of-truth ownership, reconciliation, crash recovery, parser failure, privacy/enforcement boundaries, alternatives, and fitness functions.

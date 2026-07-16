@@ -1,0 +1,1 @@
+{"schemaVersion":1,"id":"07-coupled-java-repository-review","familyId":"07-coupled-java-repository-review","title":"Coupled Java Repository Review","version":"1.0","mode":"REVIEW","brief":"public/brief.md","prompt":"public/prompt.md","expectations":"private/expectations.json","fixture":"../../fixtures/07-coupled-java-review"}

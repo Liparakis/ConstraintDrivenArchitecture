@@ -1,0 +1,1 @@
+{"schemaVersion":1,"id":"06-multitenancy-evolution","familyId":"06-multitenancy-evolution","title":"Multi-Tenancy Evolution","version":"1.0","mode":"EVOLUTION","brief":"public/brief.md","prompt":"public/prompt.md","expectations":"private/expectations.json","fixture":"../../fixtures/06-multitenancy-evolution"}

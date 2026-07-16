@@ -1,0 +1,3 @@
+# Independent evaluator instructions
+
+Score the candidate independently using the supplied rubric. The candidate was generated before you received private expectations. Do not reward length, diagrams, or familiar technology names. Distinguish an architectural disagreement from an evidence-backed failure. Cite candidate excerpts or section names for every score and finding. Use only the allowed taxonomy tags. State important unknowns and whether they change architecture. Suggest at most one smallest general skill-level correction; never edit the skill. Return only JSON matching `evaluation.schema.json`.

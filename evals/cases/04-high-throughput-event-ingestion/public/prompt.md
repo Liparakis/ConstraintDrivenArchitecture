@@ -1,0 +1,1 @@
+Use the installed constraint-driven-architecture skill to design an evidence-grounded high-throughput ingestion architecture. This case deliberately contains verified infrastructure-driving constraints. Cover durable acknowledgement, partitions, batching, replay, backpressure, duplicates, poison work, recovery, operations, and rejected excess complexity.

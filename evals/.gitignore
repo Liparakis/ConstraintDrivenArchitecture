@@ -1,0 +1,5 @@
+harness/.gradle/
+harness/build/
+reports/*
+!reports/README.md
+*.tmp

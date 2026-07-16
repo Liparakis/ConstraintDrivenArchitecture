@@ -1,0 +1,1 @@
+Use the installed constraint-driven-architecture skill in EVOLUTION mode. Inspect the supplied fixture repository first. Produce an evidence-backed staged architecture change with preserved behavior, explicit trust-boundary changes, migration/rollback, and practical fitness functions.

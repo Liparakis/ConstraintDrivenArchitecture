@@ -1,0 +1,1 @@
+Use the installed constraint-driven-architecture skill to design a proportional one-machine CLI architecture. Cover checkpoints/resume, atomic output, per-file failure, bounded concurrency, alternatives rejected, and validation tests.
