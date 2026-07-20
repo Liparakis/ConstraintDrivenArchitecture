@@ -20,7 +20,7 @@ jobs:
           cache: gradle
       - name: Validate wrapper and run harness checks
         working-directory: evals/harness
-        run: ./gradlew clean test installDist
+        run: bash ./gradlew clean test installDist
       - name: Validate repository and published evidence status
         shell: bash
         run: |

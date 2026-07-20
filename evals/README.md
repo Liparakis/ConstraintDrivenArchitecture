@@ -58,7 +58,7 @@ equivalent from the repository root:
 
 ```bash
 cd evals/harness
-./gradlew clean test installDist
+bash ./gradlew clean test installDist
 repo="$(cd ../.. && pwd)"
 work="${CDA_EVALS_HOME:-${HOME}/.constraint-driven-architecture-evals}"
 cli="./build/install/cda-evals/bin/cda-evals"
