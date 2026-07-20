@@ -1,162 +1,127 @@
-# Constraint Driven Architecture
+# Constraint-Driven Architecture
 
-> Design the simplest architecture that satisfies the real constraints.
+> Complexity only when the constraints earn it.
 
-`constraint-driven-architecture` is a Codex skill for greenfield design, major system evolution, and repository-level architecture reviews.
+[![Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE) [![CI](https://github.com/Liparakis/constrain-driven-architecture/actions/workflows/ci.yml/badge.svg)](https://github.com/Liparakis/constrain-driven-architecture/actions/workflows/ci.yml) [![Java 25](https://img.shields.io/badge/evaluation%20harness-Java%2025-orange.svg)](evals/harness/build.gradle.kts) [![Codex skill](https://img.shields.io/badge/Codex-skill-6f42c1.svg)](agents/openai.yaml)
 
-License: Apache-2.0
+`constraint-driven-architecture` is an instruction-only Codex skill for greenfield design, major evolution, and
+repository-level architecture review. It starts with capabilities, invariants, failure consequences, constraints, and
+evidence, then selects the smallest defensible architecture.
 
-It starts with product capabilities, invariants, failure consequences, and evidence - not a preferred stack or an impressive diagram. A modular monolith is the default baseline. Services, queues, extra databases, cloud infrastructure, and technology diversity must earn their coordination and operational cost.
+## What problem it solves
 
-## What it helps with
-
-- Turn an ambiguous product idea into a buildable architecture.
-- Evolve an existing system without defaulting to a rewrite.
-- Review a repository's real architecture instead of trusting its diagrams.
-- Separate verified facts from user-stated requirements, assumptions, unknowns, and measurements.
-- Make security, reliability, performance, cost, team ownership, and delivery risk affect the design early.
-- Compare credible alternatives and explain why rejected options do not fit.
-- Produce an implementation sequence, migration or rollback path, and checkable architecture fitness functions.
+Architecture advice often fails in two directions: impressive enterprise complexity without evidence, or simplistic
+advice that refuses necessary distribution and infrastructure. This skill attempts to select complexity proportionally,
+including when the answer is one deployable or when verified throughput and durability constraints justify a distributed
+design.
 
 ## Same skill, different constraints
 
-| Case | Constraints | Selected architecture |
-| --- | --- | --- |
-| Local batch converter | One machine, resumable jobs, bounded concurrency | Single CLI process with local durable state |
-| Event ingestion platform | 250k events/s sustained, 1M/s bursts, replay | Replicated partitioned log with consumer groups |
+The following are illustrative evaluation cases until a complete scored package is published:
 
-In the local case, it rejects services, brokers, and distributed infrastructure. In the ingestion case, it introduces a log, partitions, replay, backpressure, and poison-event isolation.
+| Case                     | Constraints                                      | Candidate direction                             |
+|--------------------------|--------------------------------------------------|-------------------------------------------------|
+| Local batch converter    | One machine, resumable jobs, bounded concurrency | Single CLI process with local durable state     |
+| Event ingestion platform | 250k events/s sustained, 1M/s bursts, replay     | Replicated partitioned log with consumer groups |
 
-The constraints—not a preferred pattern—choose the architecture:
+The cases are deliberately different: a local workload can reject services and brokers, while verified durable
+throughput can justify partitions, replay, backpressure, and poison-event isolation. See the case briefs
+and [published evidence](evals/published/README.md) for the current evidence status.
 
-```text
-Architecture brief
-       │
-       ▼
-Constraint + evidence analysis
-       │
-       ├── Small local workload
-       │      └── one deployable
-       │
-       └── High-throughput durable workload
-              └── partitioned replicated log
-```
+## How it differs
 
-## When to use it
+Software-architecture skills already exist. This project focuses on a narrower hypothesis:
 
-Use it when the decision changes system boundaries, data ownership, deployment topology, trust boundaries, consistency, reliability, or scaling.
+> Architectural complexity should be earned by explicit constraints, and changes to the skill should be justified by
+> evaluation evidence rather than prompt intuition alone.
 
-```text
-$constraint-driven-architecture Design the initial architecture for a local-first collaborative notes product. Ask only questions that could change the architecture; otherwise proceed with explicit assumptions and validation steps.
-```
+Its particular combination is:
 
-It can also activate when a request clearly calls for architecture work. For a small bug fix, isolated refactor, routine library choice, or straightforward implementation, it should stay out of the way.
+- separate `GREENFIELD`, `EVOLUTION`, and `REVIEW` modes;
+- explicit evidence classifications;
+- a smallest-credible-baseline rule;
+- an adversarial pass that removes unjustified complexity;
+- proportional output rather than mandatory architecture theatre;
+- immutable public evaluation inputs;
+- isolated candidate generation;
+- blinded evaluator packages; and
+- failure-pattern tracking before modifying the skill.
+
+This is a scoped distinction, not a claim that other projects lack any of these techniques.
 
 ## 30-second usage example
 
-Prompt:
-
 ```text
-$constraint-driven-architecture Design a resumable batch file converter...
+$constraint-driven-architecture Design a resumable batch file converter for one machine. Ask only questions that could change the architecture; otherwise state assumptions and validation steps.
 ```
 
-Result:
+Typical direction: one local executable, bounded workers, temporary output, atomic publication, and durable job state.
+Services, a broker, and a central database require evidence.
 
-```text
-Mode: GREENFIELD
+## Installation
 
-Recommendation:
-Use one local executable with bounded workers, temporary output,
-atomic publication and durable job state.
-
-Rejected:
-- microservices
-- message broker
-- central database
-- daemon
-```
-
-## How it reasons
-
-The workflow is deliberately opinionated:
-
-1. Frame capabilities, actors, invariants, critical journeys, failure consequences, and non-goals.
-2. Define constraints using adoption scenarios rather than invented precision.
-3. Identify ownership, trust zones, transaction boundaries, failure domains, and operational responsibility.
-4. Build the smallest credible baseline first.
-5. Compare only serious alternatives, including the cost of coordination and reversibility.
-6. Apply bounded security, performance, reliability, operations, cost, and delivery reviews.
-7. Attack the design: remove unjustified services, databases, hops, abstractions, and fashionable infrastructure.
-8. Select the simplest candidate that demonstrably fits, then make it buildable.
-
-Important claims are labeled `VERIFIED`, `USER-STATED`, `DERIVED`, `ASSUMED`, `UNKNOWN`, or `REQUIRES-MEASUREMENT`. The skill does not treat uncertainty as a reason to invent requirements; it states what would change the decision and how to validate it.
-
-## What a good result contains
-
-The depth is proportional to risk, but an architecture response should make these explicit:
-
-- selected mode: `GREENFIELD`, `EVOLUTION`, or `REVIEW`
-- chosen architecture and simplest viable baseline
-- boundaries, ownership, trust model, and important contracts
-- evidence, assumptions, unknowns, and measurements still needed
-- security, failure, degraded-mode, recovery, and observability behavior
-- rejected alternatives and the evidence against them
-- invalidation conditions and decisions intentionally deferred
-- implementation order, migration/rollback where relevant, and practical fitness functions
-
-The reference material is a menu, not a demand to produce a giant document.
-
-## Install for Codex
+The current Git remote is `https://github.com/Liparakis/constrain-driven-architecture.git`. The URL is real but the
+GitHub slug is misspelled; the installed skill directory remains canonical.
+See [the rename note](docs/REPOSITORY_RENAME.md).
 
 ### Windows PowerShell
 
 ```powershell
-git clone https://github.com/Liparakis/constraint-driven-architecture.git "$env:USERPROFILE\.agents\skills\constraint-driven-architecture"
+git clone https://github.com/Liparakis/constrain-driven-architecture.git "$env:USERPROFILE\.agents\skills\constraint-driven-architecture"
+git -C "$env:USERPROFILE\.agents\skills\constraint-driven-architecture" pull --ff-only
+Test-Path "$env:USERPROFILE\.agents\skills\constraint-driven-architecture\SKILL.md"
+Remove-Item -Recurse -Force "$env:USERPROFILE\.agents\skills\constraint-driven-architecture"
 ```
 
-### macOS or Linux
+### macOS/Linux
 
 ```bash
-git clone https://github.com/Liparakis/constraint-driven-architecture.git ~/.agents/skills/constraint-driven-architecture
+git clone https://github.com/Liparakis/constrain-driven-architecture.git ~/.agents/skills/constraint-driven-architecture
+git -C ~/.agents/skills/constraint-driven-architecture pull --ff-only
+test -f ~/.agents/skills/constraint-driven-architecture/SKILL.md
+rm -rf ~/.agents/skills/constraint-driven-architecture
 ```
 
-Start a new Codex session if the skill does not appear automatically.
+Start a new Codex session after installation. Invoke it explicitly with `$constraint-driven-architecture`.
+
+## How it reasons
+
+The workflow derives capabilities, hard and soft constraints, credible patterns, candidate technologies, operational and
+delivery consequences, invalidation evidence, and the simplest sufficient choice. It preserves established repository
+and team ecosystems when reasonable, and does not use a maintainer preference as a hidden tie-breaker. Important claims
+are classified as `VERIFIED`, `USER-STATED`, `DERIVED`, `ASSUMED`, `UNKNOWN`, or `REQUIRES-MEASUREMENT`.
+
+## Evidence discipline and evaluation
+
+The offline harness prepares immutable public inputs, records candidates unchanged, creates blinded evaluator packages,
+validates score JSON, and reports comparisons. It never invokes a model.
+Read [the methodology](evals/METHODOLOGY.md), [the harness guide](evals/README.md),
+and [the dual-model contract](evals/DUAL_MODEL_TESTING.md).
+
+No complete scored evaluation package is currently published. Prepared external runs exist, but no `evaluation.json` was
+recorded, so this README does not present them as benchmark results.
 
 ## Repository map
 
-```text
-SKILL.md                              Core workflow and decision rules
-references/architecture-gates.md      Security, boundary, performance, and reliability gates
-references/evidence-and-decisions.md  Evidence ledger and decision-record guidance
-references/architecture-output-template.md
-                                      Proportional output structure
-agents/openai.yaml                    Codex UI metadata
-evals/                                Manual dual-model evaluation harness
-```
+`SKILL.md` is the production workflow. `references/` contains gates, evidence guidance, and the output menu.
+`agents/openai.yaml` contains Codex metadata. `evals/` contains offline evaluation tooling and cases.
+`AUTHOR_PREFERENCES.md` is an optional maintainer profile.
 
-## Evaluate changes to the skill
+## Known limitations
 
-The `evals/` harness prepares immutable public inputs, ingests candidate architecture outputs, creates blinded evaluator packages, validates score JSON, and reports comparisons. It never invokes Codex or an LLM itself.
+Architecture evaluation remains partly subjective; the harness does not invoke models; published outputs may not
+reproduce byte-for-byte; two-model comparison is not universal; case rubrics may encode incorrect assumptions; the skill
+can still overengineer or underengineer; repository inspection depends on accessible evidence; version-sensitive claims
+require authoritative verification; security-critical or formally verified systems require specialist review; and the
+skill does not replace measurement, benchmarks, threat models, or operational ownership. The maintainer's Java
+preferences are optional and separated from the core.
 
-```powershell
-Set-Location .\evals\harness
-.\gradlew.bat clean test installDist
-```
+## Contributing, security, and licence
 
-See [`evals/README.md`](evals/README.md) for the complete workflow and [`evals/DUAL_MODEL_TESTING.md`](evals/DUAL_MODEL_TESTING.md) for the isolation and blinding contract.
+See [CONTRIBUTING.md](CONTRIBUTING.md), [SECURITY.md](SECURITY.md), and [LICENSE](LICENSE). The project is Apache-2.0
+licensed and does not currently require a CLA or DCO.
 
-```text
-                Identical public brief
-                    /           \
-               Luna High      Sol High
-                    \           /
-                 Blinded candidates
-                         │
-                    Fixed rubric
-                         │
-                Comparison + failure tags
-```
+## Optional maintainer preferences
 
-## Scope and limits
-
-The production skill is instruction-only. The repository also contains an offline evaluation harness used exclusively to test changes to the skill. It does not create a custom orchestrator, database, broker, runtime, UI, CLI, or helper tool. It also does not replace benchmarks, threat modeling, operational review, or authoritative documentation when a decision depends on version-sensitive or measured behavior.
+The Java 25 and Gradle Kotlin DSL preferences are documented separately
+in [AUTHOR_PREFERENCES.md](AUTHOR_PREFERENCES.md). They are never automatically loaded or enforced by `SKILL.md`.
