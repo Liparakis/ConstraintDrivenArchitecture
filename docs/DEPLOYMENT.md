@@ -8,7 +8,7 @@ This repository is not a hosted application. The production skill is instruction
 
 ## Release deployment
 
-`.github/workflows/release.yml` runs when a tag matching `v*` is pushed. It rebuilds and tests the harness, creates a compressed distribution and SHA-256 file, and publishes both to a GitHub Release using the repository's `GITHUB_TOKEN`.
+`.github/workflows/release.yml` runs when a tag matching `v*` is pushed. It rebuilds and tests the harness, creates `.tar.gz` and `.zip` distributions with portable SHA-256 files, and publishes them to a GitHub Release using the repository's `GITHUB_TOKEN`.
 
 Create a release only after review:
 

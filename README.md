@@ -62,7 +62,6 @@ Services, a broker, and a central database require evidence.
 
 The canonical GitHub URL is `https://github.com/Liparakis/ConstraintDrivenArchitecture.git`.
 The installed skill directory remains canonical.
-See [the repository note](docs/REPOSITORY_RENAME.md).
 
 ### Windows PowerShell
 
