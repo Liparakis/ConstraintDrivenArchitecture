@@ -9,15 +9,14 @@ For the durable parent-orchestration contract, isolated Luna/Sol agents, case se
 ## Windows workflow
 
 ```powershell
-Set-Location C:\Users\Liparakis\Desktop\constrain-driven-architecture\evals\harness
+Set-Location .\evals\harness
 .\gradlew.bat clean test installDist
-$cli = ".\build\install\cda-evals\bin\cda-evals.bat"
-$skill = "C:\Users\Liparakis\Desktop\constrain-driven-architecture"
+$repo = (Resolve-Path ..\..).Path
 $work = "$env:LOCALAPPDATA\ConstraintDrivenArchitectureEvals"
-& $cli validate --skill-root $skill --work-dir $work
-& $cli snapshot-skill --skill-root $skill --label v0.1 --work-dir $work
-& $cli list-cases
-& $cli prepare-run --case 01-appointment-booking --snapshot v0.1 --model "Luna High" --reasoning high --work-dir $work
+& ".\build\install\cda-evals\bin\cda-evals.bat" validate --skill-root $repo --work-dir $work
+& ".\build\install\cda-evals\bin\cda-evals.bat" snapshot-skill --skill-root $repo --label v0.1 --work-dir $work
+& ".\build\install\cda-evals\bin\cda-evals.bat" list-cases
+& ".\build\install\cda-evals\bin\cda-evals.bat" prepare-run --case 01-appointment-booking --snapshot v0.1 --model "Luna High" --reasoning high --work-dir $work
 ```
 
 Open the printed `generation` directory in Codex, run `$constraint-driven-architecture` with its prepared prompt, and save the answer as `candidate.md`. Then:

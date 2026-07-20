@@ -4,6 +4,8 @@
 
 `constraint-driven-architecture` is a Codex skill for greenfield design, major system evolution, and repository-level architecture reviews.
 
+License: Apache-2.0
+
 It starts with product capabilities, invariants, failure consequences, and evidence - not a preferred stack or an impressive diagram. A modular monolith is the default baseline. Services, queues, extra databases, cloud infrastructure, and technology diversity must earn their coordination and operational cost.
 
 ## What it helps with
@@ -16,6 +18,30 @@ It starts with product capabilities, invariants, failure consequences, and evide
 - Compare credible alternatives and explain why rejected options do not fit.
 - Produce an implementation sequence, migration or rollback path, and checkable architecture fitness functions.
 
+## Same skill, different constraints
+
+| Case | Constraints | Selected architecture |
+| --- | --- | --- |
+| Local batch converter | One machine, resumable jobs, bounded concurrency | Single CLI process with local durable state |
+| Event ingestion platform | 250k events/s sustained, 1M/s bursts, replay | Replicated partitioned log with consumer groups |
+
+In the local case, it rejects services, brokers, and distributed infrastructure. In the ingestion case, it introduces a log, partitions, replay, backpressure, and poison-event isolation.
+
+The constraints—not a preferred pattern—choose the architecture:
+
+```text
+Architecture brief
+       │
+       ▼
+Constraint + evidence analysis
+       │
+       ├── Small local workload
+       │      └── one deployable
+       │
+       └── High-throughput durable workload
+              └── partitioned replicated log
+```
+
 ## When to use it
 
 Use it when the decision changes system boundaries, data ownership, deployment topology, trust boundaries, consistency, reliability, or scaling.
@@ -25,6 +51,30 @@ $constraint-driven-architecture Design the initial architecture for a local-firs
 ```
 
 It can also activate when a request clearly calls for architecture work. For a small bug fix, isolated refactor, routine library choice, or straightforward implementation, it should stay out of the way.
+
+## 30-second usage example
+
+Prompt:
+
+```text
+$constraint-driven-architecture Design a resumable batch file converter...
+```
+
+Result:
+
+```text
+Mode: GREENFIELD
+
+Recommendation:
+Use one local executable with bounded workers, temporary output,
+atomic publication and durable job state.
+
+Rejected:
+- microservices
+- message broker
+- central database
+- daemon
+```
 
 ## How it reasons
 
@@ -61,13 +111,13 @@ The reference material is a menu, not a demand to produce a giant document.
 ### Windows PowerShell
 
 ```powershell
-git clone https://github.com/Liparakis/constrain-driven-architecture.git "$env:USERPROFILE\.agents\skills\constraint-driven-architecture"
+git clone https://github.com/Liparakis/constraint-driven-architecture.git "$env:USERPROFILE\.agents\skills\constraint-driven-architecture"
 ```
 
 ### macOS or Linux
 
 ```bash
-git clone https://github.com/Liparakis/constrain-driven-architecture.git ~/.agents/skills/constraint-driven-architecture
+git clone https://github.com/Liparakis/constraint-driven-architecture.git ~/.agents/skills/constraint-driven-architecture
 ```
 
 Start a new Codex session if the skill does not appear automatically.
@@ -95,6 +145,18 @@ Set-Location .\evals\harness
 
 See [`evals/README.md`](evals/README.md) for the complete workflow and [`evals/DUAL_MODEL_TESTING.md`](evals/DUAL_MODEL_TESTING.md) for the isolation and blinding contract.
 
+```text
+                Identical public brief
+                    /           \
+               Luna High      Sol High
+                    \           /
+                 Blinded candidates
+                         │
+                    Fixed rubric
+                         │
+                Comparison + failure tags
+```
+
 ## Scope and limits
 
-This is an instruction-only skill. It does not create a custom orchestrator, database, broker, runtime, UI, CLI, or helper tool. It also does not replace benchmarks, threat modeling, operational review, or authoritative documentation when a decision depends on version-sensitive or measured behavior.
+The production skill is instruction-only. The repository also contains an offline evaluation harness used exclusively to test changes to the skill. It does not create a custom orchestrator, database, broker, runtime, UI, CLI, or helper tool. It also does not replace benchmarks, threat modeling, operational review, or authoritative documentation when a decision depends on version-sensitive or measured behavior.

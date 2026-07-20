@@ -19,14 +19,14 @@ The project-local agents are `.codex/agents/cda_luna_tester.toml` (`gpt-5.6-luna
 Run from `evals/harness`; the work directory is external by default (`%LOCALAPPDATA%\ConstraintDrivenArchitectureEvals`). The parent prepares the same case twice, with only the private model metadata differing:
 
 ```powershell
-Set-Location C:\Users\Liparakis\Desktop\constrain-driven-architecture\evals\harness
+Set-Location .\evals\harness
 .\gradlew.bat clean test installDist
-$cli = ".\build\install\cda-evals\bin\cda-evals.bat"
+$repo = (Resolve-Path ..\..).Path
 $work = "$env:LOCALAPPDATA\ConstraintDrivenArchitectureEvals"
-& $cli validate --skill-root "..\.." --work-dir $work
-& $cli snapshot-skill --skill-root "..\.." --label v0.1 --work-dir $work
-& $cli prepare-run --case 03-batch-file-converter-cli --snapshot v0.1 --model gpt-5.6-luna --reasoning high --work-dir $work
-& $cli prepare-run --case 03-batch-file-converter-cli --snapshot v0.1 --model gpt-5.6-sol --reasoning high --work-dir $work
+& ".\build\install\cda-evals\bin\cda-evals.bat" validate --skill-root $repo --work-dir $work
+& ".\build\install\cda-evals\bin\cda-evals.bat" snapshot-skill --skill-root $repo --label v0.1 --work-dir $work
+& ".\build\install\cda-evals\bin\cda-evals.bat" prepare-run --case 03-batch-file-converter-cli --snapshot v0.1 --model gpt-5.6-luna --reasoning high --work-dir $work
+& ".\build\install\cda-evals\bin\cda-evals.bat" prepare-run --case 03-batch-file-converter-cli --snapshot v0.1 --model gpt-5.6-sol --reasoning high --work-dir $work
 ```
 
 Before spawning, treat the first prepared `generation/input-manifest.json` as canonical and require the second to match it byte-for-byte. Compare both manifests and their `input-manifest.sha256` values; the canonical file hash and every listed input hash must match. The private `runs/<run-id>/manifest.json` retains model IDs. Save each unchanged response to its own `generation/candidate.md`, then run `ingest-result` for each run. Only after both are ingested, create separate blinded packages with `prepare-evaluation`; those packages use neutral candidate IDs and contain no model identity. Use `record-evaluation`, `compare`, and `report` only in a later evaluation step.
