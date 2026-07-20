@@ -23,13 +23,14 @@ jobs:
         run: bash ./gradlew clean test installDist
       - name: Validate repository and case catalog
         shell: bash
+        working-directory: evals/harness
         run: |
-          repo="$PWD"
+          repo="$(cd ../.. && pwd)"
           work="$RUNNER_TEMP/cda-release-validation"
-          cli="evals/harness/build/install/cda-evals/bin/cda-evals"
+          cli="./build/install/cda-evals/bin/cda-evals"
           "$cli" validate --skill-root "$repo" --work-dir "$work"
           "$cli" list-cases
-          test -f evals/published/README.md
+          test -f ../published/README.md
       - name: Publish GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
