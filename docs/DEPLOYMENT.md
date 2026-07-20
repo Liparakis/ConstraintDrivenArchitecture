@@ -8,13 +8,13 @@ This repository is not a hosted application. The production skill is instruction
 
 ## Release deployment
 
-`.github/workflows/release.yml` runs when a tag matching `v*` is pushed. It rebuilds and tests the harness, creates `.tar.gz` and `.zip` distributions with portable SHA-256 files, and publishes them to a GitHub Release using the repository's `GITHUB_TOKEN`.
+`.github/workflows/release.yml` runs when a tag matching `v*` is pushed. It rebuilds and tests the harness, validates the repository, creates `.tar.gz` and `.zip` distributions with portable SHA-256 files, and publishes them to a GitHub Release using the repository's `GITHUB_TOKEN`. Tags containing a hyphen, such as `v0.1.0-alpha.1`, are prereleases; tags such as `v0.1.0` are stable releases.
 
 Create a release only after review:
 
 ```bash
-git tag -a v0.1.0 -m "Release v0.1.0"
-git push origin v0.1.0
+git tag -a v0.1.0-alpha.1 -m "Constraint-Driven Architecture v0.1.0-alpha.1"
+git push origin v0.1.0-alpha.1
 ```
 
 The workflow does not deploy a server, invoke models, modify `SKILL.md`, or publish private evaluation data. A future hosted deployment would require an explicitly chosen target, credentials, ownership, rollback policy, and a different workflow.
