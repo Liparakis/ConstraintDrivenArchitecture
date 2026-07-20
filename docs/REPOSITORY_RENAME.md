@@ -1,19 +1,20 @@
-# Repository rename recommendation
+# Repository URL history
 
-The configured `origin` is currently `https://github.com/Liparakis/constrain-driven-architecture.git`. The repository slug omits “t” from “constraint”, while the installed skill directory and skill name are canonical: `constraint-driven-architecture`.
+The local `origin` was `https://github.com/Liparakis/constrain-driven-architecture.git`, but GitHub now reports that the repository moved to `https://github.com/Liparakis/ConstraintDrivenArchitecture.git`.
 
-Renaming the GitHub repository improves discoverability and keeps the repository URL, skill name, installation path, and documentation consistent. This rename has not been performed by this change.
+Renaming the GitHub repository improves discoverability and keeps the repository URL, skill name, installation path, and documentation consistent. The move is evidenced by GitHub's push response and a successful `git ls-remote` against the new URL; verify the final repository name in the GitHub UI.
 
-## Manual GitHub steps
+The canonical repository URL is now confirmed as `https://github.com/Liparakis/ConstraintDrivenArchitecture.git`; no rename action remains for this checkout.
+
+## If the old slug appears elsewhere
 
 1. Open the repository on GitHub and choose **Settings** → **General**.
-2. Change **Repository name** to `constraint-driven-architecture` and confirm the rename.
-3. Update the local remote:
+1. Update the local remote:
 
 ```powershell
-git remote set-url origin https://github.com/Liparakis/constraint-driven-architecture.git
+git remote set-url origin https://github.com/Liparakis/ConstraintDrivenArchitecture.git
 ```
 
-4. Recheck `README.md`, `evals/README.md`, `evals/DUAL_MODEL_TESTING.md`, launch materials, badges, and any external automation.
+2. Recheck `README.md`, `evals/README.md`, `evals/DUAL_MODEL_TESTING.md`, launch materials, badges, and any external automation.
 
 GitHub redirects are helpful during migration, but they should not replace fixing canonical links.

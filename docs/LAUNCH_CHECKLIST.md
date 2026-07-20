@@ -2,7 +2,7 @@
 
 ## Repository metadata
 
-- [ ] Rename the GitHub repository manually to `constraint-driven-architecture` if desired; update the local remote and recheck canonical links.
+- [x] Confirm the canonical GitHub repository URL: `https://github.com/Liparakis/ConstraintDrivenArchitecture.git`.
 - [ ] Add topics: `codex`, `codex-skill`, `agent-skills`, `software-architecture`, `system-design`, `ai-agents`, `llm-evaluation`, `architecture-review`, `java`, `gradle`.
 - [ ] Set the description to: `Codex architecture skill that selects complexity from explicit constraints, with a blinded dual-model evaluation harness.`
 - [ ] Pin the repository if appropriate, enable private vulnerability reporting, and verify branch protections and Apache-2.0 detection.

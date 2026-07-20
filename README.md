@@ -2,7 +2,7 @@
 
 > Complexity only when the constraints earn it.
 
-[![Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE) [![CI](https://github.com/Liparakis/constrain-driven-architecture/actions/workflows/ci.yml/badge.svg)](https://github.com/Liparakis/constrain-driven-architecture/actions/workflows/ci.yml) [![Java 25](https://img.shields.io/badge/evaluation%20harness-Java%2025-orange.svg)](evals/harness/build.gradle.kts) [![Codex skill](https://img.shields.io/badge/Codex-skill-6f42c1.svg)](agents/openai.yaml)
+[![Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE) [![CI](https://github.com/Liparakis/ConstraintDrivenArchitecture/actions/workflows/ci.yml/badge.svg)](https://github.com/Liparakis/ConstraintDrivenArchitecture/actions/workflows/ci.yml) [![Java 25](https://img.shields.io/badge/evaluation%20harness-Java%2025-orange.svg)](evals/harness/build.gradle.kts) [![Codex skill](https://img.shields.io/badge/Codex-skill-6f42c1.svg)](agents/openai.yaml)
 
 `constraint-driven-architecture` is an instruction-only Codex skill for greenfield design, major evolution, and
 repository-level architecture review. It starts with capabilities, invariants, failure consequences, constraints, and
@@ -60,14 +60,14 @@ Services, a broker, and a central database require evidence.
 
 ## Installation
 
-The current Git remote is `https://github.com/Liparakis/constrain-driven-architecture.git`. The URL is real but the
-GitHub slug is misspelled; the installed skill directory remains canonical.
-See [the rename note](docs/REPOSITORY_RENAME.md).
+The canonical GitHub URL is `https://github.com/Liparakis/ConstraintDrivenArchitecture.git`.
+The installed skill directory remains canonical.
+See [the repository note](docs/REPOSITORY_RENAME.md).
 
 ### Windows PowerShell
 
 ```powershell
-git clone https://github.com/Liparakis/constrain-driven-architecture.git "$env:USERPROFILE\.agents\skills\constraint-driven-architecture"
+git clone https://github.com/Liparakis/ConstraintDrivenArchitecture.git "$env:USERPROFILE\.agents\skills\constraint-driven-architecture"
 git -C "$env:USERPROFILE\.agents\skills\constraint-driven-architecture" pull --ff-only
 Test-Path "$env:USERPROFILE\.agents\skills\constraint-driven-architecture\SKILL.md"
 Remove-Item -Recurse -Force "$env:USERPROFILE\.agents\skills\constraint-driven-architecture"
@@ -76,7 +76,7 @@ Remove-Item -Recurse -Force "$env:USERPROFILE\.agents\skills\constraint-driven-a
 ### macOS/Linux
 
 ```bash
-git clone https://github.com/Liparakis/constrain-driven-architecture.git ~/.agents/skills/constraint-driven-architecture
+git clone https://github.com/Liparakis/ConstraintDrivenArchitecture.git ~/.agents/skills/constraint-driven-architecture
 git -C ~/.agents/skills/constraint-driven-architecture pull --ff-only
 test -f ~/.agents/skills/constraint-driven-architecture/SKILL.md
 rm -rf ~/.agents/skills/constraint-driven-architecture
