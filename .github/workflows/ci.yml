@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: gradle
+      - name: Validate wrapper and run harness checks
+        working-directory: evals/harness
+        run: ./gradlew clean test installDist
+      - name: Validate repository and published evidence status
+        shell: bash
+        run: |
+          repo="$PWD"
+          work="$RUNNER_TEMP/cda-evals"
+          cli="evals/harness/build/install/cda-evals/bin/cda-evals"
+          "$cli" validate --skill-root "$repo" --work-dir "$work"
+          "$cli" list-cases
+          test -f evals/published/README.md
+      - name: Reject personal paths and obvious secrets
+        shell: bash
+        run: |
+          ! rg -n --hidden --glob '!.git/**' --glob '!evals/harness/build/**' --glob '!.github/workflows/ci.yml' 'C:\\Users\\|/Users/|/home/[^$`" ]+' .
+          ! rg -n --hidden --glob '!.git/**' --glob '!evals/harness/build/**' '(AKIA[0-9A-Z]{16}|BEGIN (RSA|OPENSSH|EC) PRIVATE KEY)' .
