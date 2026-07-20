@@ -1,0 +1,197 @@
+GREENFIELD — recommended architecture
+Use one payment application, PostgreSQL as the system of record, and a background executor that calls the provider. Do not introduce a message broker or payment microservice yet; PostgreSQL can safely schedule this workload.
+The guarantee is at-most-once payment, not magical “exactly once.” During ambiguous failures, safety must win over availability: the system may pause an invoice rather than risk paying twice.
+Core invariants
+One canonical invoice identity maps to one payment intent:
+UNIQUE(tenant_id, supplier_id, source_invoice_id).
+Every retry of the same provider operation uses the exact same:idempotency key
+merchant account
+payee
+amount and currency
+request body
+
+A timeout, disconnect, or HTTP 5xx means UNKNOWN, never FAILED.
+An unknown attempt never receives a new idempotency key.
+A new attempt is allowed only after authoritative evidence that the previous attempt cannot settle.
+No provider call occurs before its attempt is committed to PostgreSQL.
+Payment facts and audit events are append-only.
+After disaster recovery, reconciliation runs before payment execution resumes.
+The invoice identity is the hardest business requirement. Supplier name plus invoice number is usually insufficient: suppliers may reuse numbers, aliases may exist, and invoice corrections complicate identity.
+Minimal data model
+payment_intent
+canonical invoice identity, unique
+immutable supplier/payee, amount, currency snapshot
+overall status
+approval and policy evidence
+created/updated timestamps
+payment_attempt
+payment intent ID and generation
+provider and merchant account
+stable idempotency key, unique
+hash of the exact provider request
+provider payment ID, unique when present
+state, retry time, lease expiration
+first-submission timestamp
+last response/error
+payment_event
+append-only state/audit history
+actor and correlation ID
+provider event ID, unique for webhook deduplication
+redacted response metadata
+Use constraints, not application conventions, for uniqueness. Allow at most one nonterminal attempt per payment intent.
+Generate the key once and persist it. Prefer a reproducible, versioned key derived from the immutable invoice identity, merchant account, and attempt generation, such as an HMAC. This reduces duplicate risk if a database restore loses recently committed rows. Store the generated key as well.
+Payment flow
+The agent submits an invoice ID, not arbitrary payment instructions.
+The payment application loads the verified invoice and payee details server-side.
+Deterministic policy validates:invoice identity
+amount and currency
+approved supplier account
+approval thresholds
+invoice not cancelled or already paid
+
+In one PostgreSQL transaction:insert the payment intent, relying on the unique invoice constraint;
+create or retrieve its active attempt;
+generate and persist the idempotency key and request hash;
+append an audit event.
+
+The executor claims due attempts with a short lease, for example using FOR UPDATE SKIP LOCKED, and commits.
+Outside the database transaction, it calls the provider with the stored payload and key.
+In a new transaction, it stores the provider payment ID/status and appends an event.
+Webhooks and polling update the same attempt. Duplicate webhook event IDs are ignored.
+Never keep a database transaction open during the network call. Concurrent workers may occasionally submit the same key, but the provider must collapse those calls into one operation.
+Recovery behavior
+Failure	Recovery
+Crash before provider call	Retry using the stored key and payload.
+Crash after provider accepted but before DB update	Mark/recover as unknown; query provider or retry with the same key.
+Timeout, disconnect, HTTP 5xx	Treat as unknown. Never create a fresh key.
+Provider reports pending	Poll or consume webhooks; do not resubmit.
+Duplicate/out-of-order webhook	Deduplicate by event ID and confirm canonical status through the provider API.
+Documented definitive rejection	Mark failed. A new attempt is permitted only if the provider guarantees no payment exists or can later settle.
+
+
+
+
+
+
+
+
+Mode: GREENFIELD
+Use one payment application, PostgreSQL as the authoritative ledger, and the provider API. Do not claim “exactly once”: PostgreSQL and the provider cannot share a transaction. The defensible guarantee is:
+At most one provider payment per canonical invoice identity, with uncertain outcomes frozen or reconciled before further action.
+
+If availability conflicts with duplicate prevention, duplicate prevention wins.
+Core invariants
+One canonical invoice identity maps to one payment intent:
+UNIQUE(tenant_id, supplier_id, source_invoice_id).
+Payment amount, currency, destination, and provider account become immutable before the first API call.
+Every retry of one attempt uses the exact same idempotency key and payload.
+Timeout, disconnect, and HTTP 5xx mean UNKNOWN, never FAILED.
+A new idempotency key is allowed only after the provider conclusively proves that the previous attempt cannot settle.
+No provider call occurs unless its attempt is already committed in PostgreSQL.
+Successful and uncertain attempts cannot be deleted or silently reset.
+Invoice number alone is usually a weak identity: suppliers may reuse numbers. Prefer an immutable source-system invoice ID, scoped to tenant and supplier.
+Minimal data model
+payment_intent
+  id
+  canonical_invoice_identity UNIQUE
+  amount_minor
+  currency
+  destination_account_id
+  status
+  active_attempt_id
+  created_at
+  updated_at
+
+payment_attempt
+  id
+  payment_intent_id
+  generation
+  idempotency_key UNIQUE
+  payload_hash
+  provider_payment_id UNIQUE NULL
+  status
+  lease_until
+  last_error
+  created_at
+  updated_at
+  UNIQUE(payment_intent_id, generation)
+
+payment_event
+  id
+  payment_intent_id
+  payment_attempt_id
+  provider_event_id UNIQUE NULL
+  event_type
+  recorded_at
+  metadata
+Use the intent and attempt rows as mutable projections while retaining append-only payment events for audit.
+Generate each key once and persist it. Prefer a reproducible, versioned key based on the canonical invoice identity, provider account, and attempt generation, such as an HMAC. This reduces the risk of losing the key during database recovery. Never derive it from mutable amount or payee fields.
+Submission flow
+The agent requests payment using an invoice ID—not arbitrary bank details and amounts.
+A deterministic payment service loads the verified invoice, checks payment policy and approval requirements, then inserts the intent with INSERT ... ON CONFLICT.
+A worker claims eligible intents using a short PostgreSQL transaction and row lock, creates the attempt and key, records SUBMITTING, then commits.
+The worker calls the provider outside the database transaction with:The persisted idempotency key.
+The immutable payload.
+A bounded timeout.
+
+It records the result in a new short transaction:Accepted or processing → PENDING, storing provider payment ID.
+Confirmed paid → SUCCEEDED.
+Documented conclusive rejection → DEFINITIVELY_FAILED.
+Timeout, connection loss, ambiguous response, or database failure after the call → UNKNOWN.
+
+Webhooks and polling reconcile PENDING and UNKNOWN attempts. Webhooks must be authenticated and deduplicated by provider event ID.
+A lease allows another worker to recover abandoned work. Concurrent workers may send the same request, but only with the same key and body.
+Recovery behavior
+Failure	Recovery
+Crash before attempt commit	No API call was authorized; create/claim normally.
+Crash after commit but before API call	Retry using the persisted key and identical payload.
+Timeout or connection loss	Mark UNKNOWN; query provider or retry with the same key.
+Provider accepted, DB update failed	Reconcile or retry with the same key; do not create a new attempt.
+Duplicate/out-of-order webhook	Deduplicate; fetch canonical provider status if events conflict.
+Provider unavailable	Leave attempts pending, apply backoff, and stop accepting work if backlog limits are exceeded.
+Provider confirms terminal failure	A new attempt/key may be created under a row lock and audited approval.
+Unknown attempt approaches key-expiry window	Freeze in MANUAL_REVIEW; never send under a new key.
+Database restored from backup	Keep payment workers disabled until every nonterminal or potentially lost interval is reconciled.
+
+Recovery must not translate “we cannot find the payment” into “it was not made.”
+The critical provider constraint
+The provider’s contract must answer:
+How long idempotency keys are retained.
+Whether scope is merchant account, endpoint, or global.
+Whether simultaneous requests are deduplicated.
+Whether the same key with a different payload is rejected.
+Whether payments can be queried by key or merchant reference.
+Which failures conclusively mean no payment was created.
+If keys expire and there is no durable merchant-reference uniqueness or historical lookup, indefinite automatic recovery is impossible. The only safe behavior after an old ambiguous attempt is to stop and escalate. A system that generates a new key to “try again” violates the requirement.
+Security boundary
+Do not give the autonomous agent unrestricted provider credentials. The agent proposes an invoice payment; a deterministic executor:
+Uses server-side invoice and supplier records.
+Enforces tenant, amount, destination, approval, and sanctions/fraud policies.
+Holds the provider secret in a secrets manager.
+Audits the requesting actor, approval, payload hash, key, and provider result.
+Rejects destination or amount changes after submission.
+This prevents prompt injection or compromised agent context from becoming arbitrary fund transfer authority.
+Rejected designs
+Call provider, then insert ledger row: crash window permits duplicates.
+Mark timeout as failed and retry with a new key: directly violates the invariant.
+Distributed transaction: the provider does not participate in PostgreSQL transactions.
+Queue or payment microservice immediately: adds another recovery boundary without strengthening correctness. PostgreSQL row claiming is enough initially.
+Rely only on webhooks: webhooks can be delayed, duplicated, reordered, or lost.
+Implementation and fitness checks
+Build in this order:
+Canonical invoice identity and PostgreSQL uniqueness constraints.
+Immutable payment snapshot and state-transition rules.
+Provider contract wrapper that requires a persisted key and matching payload hash.
+Worker leases, reconciliation, and signed webhook handling.
+Operational freeze during disaster recovery.
+Fault-injection tests.
+Required checks:
+Concurrent duplicate commands produce one intent and one provider payment.
+Crashes at every boundary recover using the same key.
+An ambiguous attempt can never transition to a new key automatically.
+Payload mutation after submission is rejected.
+Duplicate and reordered webhooks do not regress terminal state.
+Backup restoration reproduces keys and blocks submissions until reconciliation.
+Alert on aged UNKNOWN, expired leases, approaching key expiry, and ledger/provider discrepancies.
+Unresolved validation
+Architecture-changing unknowns are the provider’s idempotency retention and lookup semantics, the canonical definition of “same invoice,” and database recovery guarantees. Validate those before promising “never twice” contractually; otherwise the honest guarantee is safety through freezing, potentially at the cost of invoices remaining unpaid.

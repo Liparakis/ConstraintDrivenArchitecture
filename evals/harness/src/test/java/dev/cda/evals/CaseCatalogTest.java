@@ -6,10 +6,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class CaseCatalogTest {
     private static Path evalRoot() { return Path.of("..").toAbsolutePath().normalize(); }
-    @Test void validatesSevenFamiliesAndThreeMutations() throws Exception {
+    @Test void validatesEightFamiliesAndThreeMutations() throws Exception {
         CaseCatalog catalog = new CaseCatalog(evalRoot()); catalog.validate();
-        assertEquals(10, catalog.all().size());
-        assertEquals(7, catalog.all().stream().filter(c -> !c.isMutation()).count());
+        assertEquals(11, catalog.all().size());
+        assertEquals(8, catalog.all().stream().filter(c -> !c.isMutation()).count());
         assertEquals(3, catalog.all().stream().filter(Models.CaseEntry::isMutation).count());
     }
     @Test void mutationUsesBasePublicBriefAndPrivateOverride() throws Exception {
