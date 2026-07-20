@@ -101,6 +101,10 @@ and [the dual-model contract](evals/DUAL_MODEL_TESTING.md).
 No complete scored evaluation package is currently published. Prepared external runs exist, but no `evaluation.json` was
 recorded, so this README does not present them as benchmark results.
 
+## CI/CD and deployment
+
+GitHub Actions validates the repository on pushes and pull requests. Version tags build and publish the offline evaluation harness as a checksummed GitHub Release artifact. See [deployment](docs/DEPLOYMENT.md). There is no hosted application to deploy.
+
 ## Repository map
 
 `SKILL.md` is the production workflow. `references/` contains gates, evidence guidance, and the output menu.

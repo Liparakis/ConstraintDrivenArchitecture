@@ -29,6 +29,12 @@ jobs:
           "$cli" validate --skill-root "$repo" --work-dir "$work"
           "$cli" list-cases
           test -f evals/published/README.md
+      - name: Upload harness distribution
+        uses: actions/upload-artifact@v4
+        with:
+          name: cda-evals-${{ github.sha }}
+          path: evals/harness/build/install/cda-evals
+          if-no-files-found: error
       - name: Reject personal paths and obvious secrets
         shell: bash
         run: |
