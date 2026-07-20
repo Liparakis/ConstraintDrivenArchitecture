@@ -44,7 +44,7 @@ No complete scored evaluation package is currently published; prepared runs are 
 
 ## Releases
 
-Tags run the [release workflow](.github/workflows/release.yml), which validates the repository and publishes checksummed harness archives. This project has no hosted application or deployment process.
+Tags run the [release workflow](.github/workflows/release.yml), which validates the repository and publishes release notes. This project has no hosted application or deployment process.
 
 ## Repository map
 

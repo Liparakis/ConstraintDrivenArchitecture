@@ -30,44 +30,12 @@ jobs:
           "$cli" validate --skill-root "$repo" --work-dir "$work"
           "$cli" list-cases
           test -f evals/published/README.md
-      - name: Package harness
-        shell: bash
-        run: |
-          artifact_name="cda-evals-${GITHUB_REF_NAME}.tar.gz"
-          artifact="$RUNNER_TEMP/$artifact_name"
-          tar -czf "$artifact" -C evals/harness/build/install cda-evals
-          zip_name="cda-evals-${GITHUB_REF_NAME}.zip"
-          zip_artifact="$RUNNER_TEMP/$zip_name"
-          (cd evals/harness/build/install && zip -qr "$zip_artifact" cda-evals)
-          (
-            cd "$RUNNER_TEMP"
-            sha256sum "$artifact_name" > "$artifact_name.sha256"
-            sha256sum "$zip_name" > "$zip_name.sha256"
-            sha256sum -c "$artifact_name.sha256"
-            sha256sum -c "$zip_name.sha256"
-          )
-          test -s "$artifact"
-          test -s "$zip_artifact"
-          tar -tzf "$artifact" | grep -q '^cda-evals/'
-          unzip -l "$zip_artifact" | grep -q 'cda-evals/'
-          ! tar -tzf "$artifact" | grep -E '(^|/)(\.git|src|evals|runs|snapshots|\.gradle)(/|$)|C:/Users/|/Users/|/home/'
-          ! unzip -l "$zip_artifact" | grep -E '(^|/)(\.git|src|evals|runs|snapshots|\.gradle)(/|$)|C:/Users/|/Users/|/home/'
-          tar -tzf "$artifact" | head
-          unzip -l "$zip_artifact" | head
-          echo "artifact=$artifact" >> "$GITHUB_ENV"
-          echo "checksum=$RUNNER_TEMP/$artifact_name.sha256" >> "$GITHUB_ENV"
-          echo "zip_artifact=$RUNNER_TEMP/$zip_name" >> "$GITHUB_ENV"
-          echo "zip_checksum=$RUNNER_TEMP/$zip_name.sha256" >> "$GITHUB_ENV"
       - name: Publish GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           release_args=(
             "$GITHUB_REF_NAME"
-            "$artifact"
-            "$checksum"
-            "$zip_artifact"
-            "$zip_checksum"
             --repo "$GITHUB_REPOSITORY" \
             --title "$GITHUB_REF_NAME"
             --notes-file "docs/releases/$GITHUB_REF_NAME.md"
