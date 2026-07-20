@@ -1,7 +1,7 @@
 # Security policy
 
-This is currently a pre-release project. Report suspected vulnerabilities privately through GitHub's private vulnerability reporting for this repository when enabled. Do not open a public issue containing secrets, exploit details, private benchmark data, or personal data. No personal security email is designated.
+This pre-release project has no designated security email. Report vulnerabilities through GitHub private vulnerability reporting for this repository when available; do not publish secrets, exploit details, private benchmark data, or personal data in an issue.
 
-Relevant issues include command injection in harness arguments, path traversal, arbitrary file overwrite, unsafe archive handling, secret leakage, execution of model output as code, private evaluation contamination, provenance or hash bypass, unsafe report rendering, and dependency vulnerabilities. The skill can also produce unsafe architecture advice; treat generated advice as untrusted and require specialist review for high-risk systems.
+Relevant reports include unsafe harness input or archive handling, path traversal, arbitrary overwrite, secret leakage, candidate execution, provenance bypass, unsafe report rendering, and dependency vulnerabilities. Generated architecture advice is untrusted and needs specialist review in high-risk systems.
 
-The harness must never execute candidate text. Contributors must not commit secrets or private evaluation material. Include the affected version, reproduction steps, impact, and a safe contact path. Maintainers will acknowledge a valid private report when practicable, investigate, and coordinate a fix or mitigation before public disclosure.
+Include the affected version, safe reproduction steps, impact, and a contact path. Maintainers will investigate and coordinate mitigation before public disclosure when practicable.
