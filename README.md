@@ -1,4 +1,4 @@
-# Constraint-Driven Architecture
+# Constraint Driven Architecture
 
 > Design the simplest architecture that satisfies the real constraints.
 
